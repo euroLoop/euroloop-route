@@ -63,7 +63,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, HEAD, PATCH")
 	w.Header().Add("Access-Control-Allow-Headers", "Accept, Accept-Encoding, Authorization, Content-Length, Content-Type, X-CSRF-Token")
 	w.Header().Add("Access-Control-Expose-Headers", "Accept, Accept-Encoding, Authorization, Content-Length, Content-Type, X-CSRF-Token")
-	w.Header().Add("Access-Control-Allow-Credentials", true)
+	w.Header().Add("Access-Control-Allow-Credentials", "true")
 
 	body, _ := ioutil.ReadAll(r.Body)
 	fmt.Println(string(body))
