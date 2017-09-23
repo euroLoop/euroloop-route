@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"math"
 	"net/http"
+	"os"
 )
 
 type RouteData struct {
@@ -37,9 +38,14 @@ var pylonSpacingM float64 = 20.0
 
 func main() {
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	http.HandleFunc("/request", requestHandler)
 	http.HandleFunc("/ping", pingHandler)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":"+port, nil)
 
 }
 
