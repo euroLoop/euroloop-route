@@ -67,6 +67,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 	var data RouteData
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
 
 	body, _ := ioutil.ReadAll(r.Body)
 	fmt.Println(string(body))
