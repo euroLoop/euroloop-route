@@ -37,7 +37,7 @@ var pylonSpacingM float64 = 20.0
 
 func main() {
 
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/request", requestHandler)
 	http.HandleFunc("/ping", pingHandler)
 	http.ListenAndServe(":8080", nil)
 
@@ -50,7 +50,7 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func requestHandler(w http.ResponseWriter, r *http.Request) {
 
 	var data RouteData
 	w.Header().Add("Access-Control-Allow-Origin", "*")
