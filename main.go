@@ -60,8 +60,11 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 
 	var data RouteData
 	w.Header().Add("Access-Control-Allow-Origin", "*")
-	w.Header().Add("Content-Type", "application/json")
-	w.Header().Add("access-control-allow-headers", "access-control-allow-headers, origin, content-type, accept")
+	w.Header().Add("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, HEAD, PATCH")
+	w.Header().Add("Access-Control-Allow-Headers", "Accept, Accept-Encoding, Authorization, Content-Length, Content-Type, X-CSRF-Token")
+	w.Header().Add("Access-Control-Expose-Headers", "Accept, Accept-Encoding, Authorization, Content-Length, Content-Type, X-CSRF-Token")
+	w.Header().Add("Access-Control-Allow-Credentials", true)
+
 	body, _ := ioutil.ReadAll(r.Body)
 	fmt.Println(string(body))
 	_ = json.Unmarshal(body, &data)
