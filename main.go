@@ -24,6 +24,11 @@ type Response struct {
 	PowerConsumption int `json:"powerconsumption"`
 }
 
+type pingResponse struct {
+	Service string `json:"service"`
+	Status  string `json:"status"`
+}
+
 var tubeSegmentCost float64 = 28300.0
 var tubeJointCost float64 = 8700.0
 var tubeSegmentLength float64 = 12.0
@@ -33,8 +38,16 @@ var pylonSpacingM float64 = 20.0
 func main() {
 
 	http.HandleFunc("/", handler)
+	http.HandleFunc("/ping", pingHandler)
 	http.ListenAndServe(":8080", nil)
 
+}
+
+func pingHandler(w http.ResponseWriter, r *http.Request) {
+	data, _ := json.Marshal(pingResponse{"euroloop-route", "ok"})
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
