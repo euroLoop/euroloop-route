@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/rs/cors"
 	"io/ioutil"
 	"math"
 	"net/http"
@@ -43,9 +44,14 @@ func main() {
 		port = "8080"
 	}
 
-	http.HandleFunc("/request", requestHandler)
-	http.HandleFunc("/ping", pingHandler)
-	http.ListenAndServe(":"+port, nil)
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/request", requestHandler)
+	mux.HandleFunc("/ping", pingHandler)
+
+	handler := cors.Default().Handler(mux)
+
+	http.ListenAndServe(":"+port, handler)
 
 }
 
@@ -59,11 +65,6 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 func requestHandler(w http.ResponseWriter, r *http.Request) {
 
 	var data RouteData
-	w.Header().Add("Access-Control-Allow-Origin", "*")
-	w.Header().Add("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, HEAD, PATCH")
-	w.Header().Add("Access-Control-Allow-Headers", "Accept, Accept-Encoding, Authorization, Content-Length, Content-Type, X-CSRF-Token")
-	w.Header().Add("Access-Control-Expose-Headers", "Accept, Accept-Encoding, Authorization, Content-Length, Content-Type, X-CSRF-Token")
-	w.Header().Add("Access-Control-Allow-Credentials", "true")
 
 	body, _ := ioutil.ReadAll(r.Body)
 	fmt.Println(string(body))
