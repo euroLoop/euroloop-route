@@ -41,8 +41,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	var data RouteData
 	w.Header().Add("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Accept, Accept-Language, Content-Type")
-	w.Header().Add("content-type", "application/json")
+	w.Header().Add("Content-Type", "application/json")
 	body, _ := ioutil.ReadAll(r.Body)
 	fmt.Println(string(body))
 	_ = json.Unmarshal(body, &data)
