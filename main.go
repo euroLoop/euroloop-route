@@ -56,10 +56,10 @@ func main() {
 }
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
-	data, _ := json.Marshal(pingResponse{"euroloop-route", "ok"})
+	resp, _ := json.Marshal(pingResponse{"euroloop-route", "ok"})
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(data)
+	w.Write(resp)
 }
 
 func requestHandler(w http.ResponseWriter, r *http.Request) {
