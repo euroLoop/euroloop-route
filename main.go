@@ -24,6 +24,13 @@ type Response struct {
 	PowerConsumption int `json:"powerconsumption"`
 }
 
+type InitResponse struct {
+	PodWeight       float64 `json:"podweight"`
+	MaxAcceleration float64 `json:"maxacceleration"`
+	LoadingTime     float64 `json:"loadingtime"`
+	ElectricityCost float64 `json:"electricitycost"`
+}
+
 var tubeSegmentCost float64 = 28300.0
 var tubeJointCost float64 = 8700.0
 var tubeSegmentLength float64 = 12.0
@@ -32,19 +39,35 @@ var pylonSpacingM float64 = 20.0
 
 func main() {
 
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/request", requestHandler)
+	http.HandleFunc("/init", initHandler)
 	http.ListenAndServe(":8080", nil)
 
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+// Called when route website is loaded to populate UI input data fields
+func initHandler(w http.ResponseWriter, r *http.Request) {
 
-	var data RouteData
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Accept, Accept-Language, Content-Type")
 	w.Header().Add("content-type", "application/json")
+
+	initData := ReadFromSheet()
+	resp, _ := json.Marshal(initData)
+	w.Write(resp)
+}
+
+// Called when route is changed
+func requestHandler(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Accept, Accept-Language, Content-Type")
+	w.Header().Add("content-type", "application/json")
+
 	body, _ := ioutil.ReadAll(r.Body)
 	fmt.Println(string(body))
+
+	var data RouteData
 	_ = json.Unmarshal(body, &data)
 
 	capex := calcCapex(data.Length)
