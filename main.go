@@ -65,9 +65,8 @@ func main() {
 // Called when route website is loaded to populate UI input data fields
 func initHandler(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Add("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Accept, Accept-Language, Content-Type, Authorization")
-	w.Header().Add("content-type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
 
 	initData := ReadFromSheet()
 	resp, _ := json.Marshal(initData)
@@ -80,8 +79,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 	var data RouteData
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Accept, Accept-Language, Content-Type, Authorization")
-	w.Header().Add("content-type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
 
 	body, _ := ioutil.ReadAll(r.Body)
 	fmt.Println(string(body))
