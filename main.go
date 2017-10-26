@@ -66,7 +66,7 @@ func main() {
 func initHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+	w.Header().Set("Access-Control-Allow-Headers", "Accept, Accept-Language, Content-Type, Authorization")
 	w.Header().Add("content-type", "application/json")
 
 	initData := ReadFromSheet()
@@ -80,7 +80,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 	var data RouteData
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
+	w.Header().Set("Access-Control-Allow-Headers", "Accept, Accept-Language, Content-Type, Authorization")
 	w.Header().Add("content-type", "application/json")
 
 	body, _ := ioutil.ReadAll(r.Body)
