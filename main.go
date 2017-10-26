@@ -3,9 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/rs/cors"
 	"io/ioutil"
 	"math"
 	"net/http"
+	"os"
 )
 
 type RouteData struct {
@@ -31,6 +33,11 @@ type InitResponse struct {
 	ElectricityCost float64 `json:"electricitycost"`
 }
 
+type pingResponse struct {
+	Service string `json:"service"`
+	Status  string `json:"status"`
+}
+
 var tubeSegmentCost float64 = 28300.0
 var tubeJointCost float64 = 8700.0
 var tubeSegmentLength float64 = 12.0
@@ -39,10 +46,20 @@ var pylonSpacingM float64 = 20.0
 
 func main() {
 
-	http.HandleFunc("/request", requestHandler)
-	http.HandleFunc("/init", initHandler)
-	http.ListenAndServe(":8080", nil)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/request", requestHandler)
+	mux.HandleFunc("/ping", pingHandler)
+	mux.HandleFunc("/init", initHandler)
+
+	handler := cors.Default().Handler(mux)
+
+	http.ListenAndServe(":"+port, handler)
 }
 
 // Called when route website is loaded to populate UI input data fields
@@ -57,17 +74,18 @@ func initHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(resp)
 }
 
-// Called when route is changed
+// Called when route is updated
 func requestHandler(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Add("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Accept, Accept-Language, Content-Type")
+	var data RouteData
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
 	w.Header().Add("content-type", "application/json")
 
 	body, _ := ioutil.ReadAll(r.Body)
 	fmt.Println(string(body))
 
-	var data RouteData
 	_ = json.Unmarshal(body, &data)
 
 	capex := calcCapex(data.Length)
@@ -76,6 +94,13 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp, _ := json.Marshal(Response{nrPods, travelTime, capex, 0, 0})
 	w.Write(resp)
+}
+
+func pingHandler(w http.ResponseWriter, r *http.Request) {
+	data, _ := json.Marshal(pingResponse{"euroloop-route", "ok"})
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
 }
 
 func calcTravelTime(length float64, velocity float64) int {
