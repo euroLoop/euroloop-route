@@ -39,10 +39,12 @@ func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 	fmt.Printf("Go to the following link in your browser then type the "+
 		"authorization code: \n%v\n", authURL)
 
-	var code string
-	if _, err := fmt.Scan(&code); err != nil {
-		log.Fatalf("Unable to read authorization code %v", err)
-	}
+	code := "4/bBpn-ULVV2oWPWAF5n6O5MF7K_LmX7TSuUDPJazfrig"
+	/*
+		if _, err := fmt.Scan(&code); err != nil {
+			log.Fatalf("Unable to read authorization code %v", err)
+		}
+	*/
 
 	tok, err := config.Exchange(oauth2.NoContext, code)
 	if err != nil {
