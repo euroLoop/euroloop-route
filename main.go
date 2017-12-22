@@ -56,22 +56,10 @@ func main() {
 
 	mux.HandleFunc("/request", requestHandler)
 	mux.HandleFunc("/ping", pingHandler)
-	mux.HandleFunc("/init", initHandler)
 
 	handler := cors.Default().Handler(mux)
 
 	http.ListenAndServe(":"+port, handler)
-}
-
-// Called when route website is loaded to populate UI input data fields
-func initHandler(w http.ResponseWriter, r *http.Request) {
-
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Headers", "Authorization")
-
-	initData := ReadFromSheet()
-	resp, _ := json.Marshal(initData)
-	w.Write(resp)
 }
 
 // Called when route is updated
