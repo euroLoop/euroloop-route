@@ -21,17 +21,9 @@ type RouteData struct {
 
 type Response struct {
 	Nrpods           int `json:"nrpods"`
-	TravelTime       int `json:"traveltime"`
 	Capex            int `json:"capex"`
 	Opex             int `json:"opex"`
 	PowerConsumption int `json:"powerconsumption"`
-}
-
-type InitResponse struct {
-	PodWeight       float64 `json:"podweight"`
-	MaxAcceleration float64 `json:"maxacceleration"`
-	LoadingTime     float64 `json:"loadingtime"`
-	ElectricityCost float64 `json:"electricitycost"`
 }
 
 type pingResponse struct {
@@ -77,9 +69,8 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 
 	capex := calcCapex(data.Length)
 	nrPods := calcNumberOfPods(data.TravelTime, data.Throughput, data.LoadingTime)
-	travelTime := calcTravelTime(data.Length, data.Velocity)
 
-	resp, _ := json.Marshal(Response{nrPods, travelTime, capex, 0, 0})
+	resp, _ := json.Marshal(Response{nrPods, capex, 0, 0})
 	w.Write(resp)
 }
 
@@ -88,10 +79,6 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
-}
-
-func calcTravelTime(length float64, velocity float64) int {
-	return int(math.Ceil((length / 1000) / (velocity / 60)))
 }
 
 func calcNumberOfPods(traveltime float64, throughput float64, loadingtime float64) int {
