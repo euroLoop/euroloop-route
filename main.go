@@ -13,6 +13,7 @@ import (
 type RouteData struct {
 	Length      float64 `json:"length"`
 	Velocity    float64 `json:"velocity"`
+	TravelTime  float64 `json:"travel_time"`
 	Throughput  float64 `json:"throughput"`
 	Diameter    float64 `json:"diameter"`
 	LoadingTime float64 `json:"loadingtime"`
@@ -89,7 +90,7 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 	_ = json.Unmarshal(body, &data)
 
 	capex := calcCapex(data.Length)
-	nrPods := calcNumberOfPods(data.Length, data.Velocity, data.Throughput, data.LoadingTime)
+	nrPods := calcNumberOfPods(data.TravelTime, data.Throughput, data.LoadingTime)
 	travelTime := calcTravelTime(data.Length, data.Velocity)
 
 	resp, _ := json.Marshal(Response{nrPods, travelTime, capex, 0, 0})
@@ -107,9 +108,9 @@ func calcTravelTime(length float64, velocity float64) int {
 	return int(math.Ceil((length / 1000) / (velocity / 60)))
 }
 
-func calcNumberOfPods(length float64, velocity float64, throughput float64, loadingtime float64) int {
+func calcNumberOfPods(traveltime float64, throughput float64, loadingtime float64) int {
 
-	RTT := (2*length/1000)/(velocity/60) + 2*loadingtime
+	RTT := (2 * traveltime / 60) + 2*loadingtime
 	containerPerMinute := throughput / (24 * 60)
 
 	return int(math.Ceil(RTT * containerPerMinute))
