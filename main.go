@@ -1,14 +1,28 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	_ "github.com/lib/pq"
 	"github.com/rs/cors"
 	"io/ioutil"
+	"log"
 	"math"
 	"net/http"
 	"os"
 )
+
+type Route struct {
+	Name     string    `json:"name"`
+	Segments []segment `json:"coords"`
+}
+
+type segment struct {
+	lat float64 `json:"lat"`
+	lng float64 `json:"lng"`
+	rad float64 `json:"rad"`
+}
 
 type RouteData struct {
 	Length      float64 `json:"length"`
@@ -37,7 +51,16 @@ var tubeSegmentLength float64 = 12.0
 var pylonCost float64 = 16800.0
 var pylonSpacingM float64 = 20.0
 
+var db *sql.DB
+
 func main() {
+
+	var err error
+
+	connStr := "postgres://qtkplvmtlnoxmo:e6be41ebe5299e829f9be8b59dbe437bb4599721662d40cda2e047117699321f@ec2-23-21-246-25.compute-1.amazonaws.com:5432/damrsuh0tjqpqi"
+
+	db, err = sql.Open("postgres", connStr)
+	checkErr(err)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -48,10 +71,28 @@ func main() {
 
 	mux.HandleFunc("/request", requestHandler)
 	mux.HandleFunc("/ping", pingHandler)
+	mux.HandleFunc("/saveroute", saveRoute)
 
 	handler := cors.Default().Handler(mux)
 
 	http.ListenAndServe(":"+port, handler)
+}
+
+func saveRoute(w http.ResponseWriter, r *http.Request) {
+
+	var data Route
+
+	body, _ := ioutil.ReadAll(r.Body)
+	fmt.Println(string(body))
+
+	_ = json.Unmarshal(body, &data)
+
+	_, err := db.Exec("INSERT INTO routes (doc) VALUES ($1)", data)
+	checkErr(err)
+}
+
+func loadRoutes(w http.ResponseWriter, r *http.Request) {
+
 }
 
 // Called when route is updated
@@ -96,4 +137,10 @@ func calcCapex(length float64) int {
 	pylonCostTotal := pylonCost * math.Ceil(length/pylonSpacingM)
 
 	return int(tubeCost + pylonCostTotal)
+}
+
+func checkErr(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }
