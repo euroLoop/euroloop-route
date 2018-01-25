@@ -18,6 +18,9 @@ type Route struct {
 	Segments []segment `json:"coords"`
 }
 
+type RouteList struct {
+}
+
 type segment struct {
 	lat float64 `json:"lat"`
 	lng float64 `json:"lng"`
@@ -76,13 +79,26 @@ func main() {
 	handler := cors.Default().Handler(mux)
 
 	http.ListenAndServe(":"+port, handler)
+
+	getRouteNames()
 }
 
-func getRouteNames(w http.ResponseWriter, r *http.Request) {
+func getRouteNames() {
 
-	res, err := db.Exec("SELECT id, doc->'name' FROM routes")
+	var id int
+	var name string
+
+	rows, err := db.Query("SELECT id, doc->'name' FROM routes")
+	defer rows.Close()
+
+	for rows.Next() {
+
+		if err := rows.Scan(&id, &name); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("%d: %s\n", id, name)
+	}
 	checkErr(err)
-	fmt.Println(res)
 }
 
 func saveRoute(w http.ResponseWriter, r *http.Request) {
