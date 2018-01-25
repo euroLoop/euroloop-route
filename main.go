@@ -80,14 +80,10 @@ func main() {
 
 func saveRoute(w http.ResponseWriter, r *http.Request) {
 
-	var data Route
-
 	body, _ := ioutil.ReadAll(r.Body)
 	fmt.Println(string(body))
 
-	_ = json.Unmarshal(body, &data)
-
-	_, err := db.Exec("INSERT INTO routes (doc) VALUES ($1)", data)
+	_, err := db.Exec("INSERT INTO routes (doc) VALUES ($1)", string(body))
 	checkErr(err)
 }
 
