@@ -78,6 +78,13 @@ func main() {
 	http.ListenAndServe(":"+port, handler)
 }
 
+func getRouteNames(w http.ResponseWriter, r *http.Request) {
+
+	res, err := db.Exec("SELECT id, doc->'name' FROM routes")
+	checkErr(err)
+	fmt.Println(res)
+}
+
 func saveRoute(w http.ResponseWriter, r *http.Request) {
 
 	body, _ := ioutil.ReadAll(r.Body)
