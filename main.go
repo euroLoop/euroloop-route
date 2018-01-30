@@ -18,7 +18,13 @@ type Route struct {
 	Segments []segment `json:"coords"`
 }
 
-type RouteList struct {
+type RouteName struct {
+	id   int    `json:"id"`
+	name string `json:"name"`
+}
+
+type RouteNames struct {
+	routes []RouteName `json:"routes"`
 }
 
 type segment struct {
@@ -75,6 +81,7 @@ func main() {
 	mux.HandleFunc("/request", requestHandler)
 	mux.HandleFunc("/ping", pingHandler)
 	mux.HandleFunc("/saveroute", saveRoute)
+	mux.HandleFunc("/getroutenames", getRouteNames)
 
 	handler := cors.Default().Handler(mux)
 
@@ -83,10 +90,11 @@ func main() {
 	getRouteNames()
 }
 
-func getRouteNames() {
+func getRouteNames(w http.ResponseWriter, r *http.Request) {
 
-	var id int
 	var name string
+	var id int
+	var routes []string
 
 	rows, err := db.Query("SELECT id, doc->'name' FROM routes")
 	defer rows.Close()
@@ -96,9 +104,16 @@ func getRouteNames() {
 		if err := rows.Scan(&id, &name); err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%d: %s\n", id, name)
+		routes = append(routes, name[1:len(name)-1]) // remove ""
 	}
+	fmt.Println(routes)
+	ret, err := json.Marshal(routes)
 	checkErr(err)
+
+	fmt.Println(string(ret))
+	checkErr(err)
+
+	w.Write(ret)
 }
 
 func saveRoute(w http.ResponseWriter, r *http.Request) {
