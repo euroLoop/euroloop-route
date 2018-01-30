@@ -87,7 +87,6 @@ func main() {
 
 	http.ListenAndServe(":"+port, handler)
 
-	getRouteNames()
 }
 
 func getRouteNames(w http.ResponseWriter, r *http.Request) {
