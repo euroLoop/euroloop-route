@@ -1,0 +1,148 @@
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Euroloop route planning tool v0.1</title>
+    <link rel="stylesheet" href="static/css/route-style.css" />
+    <link rel="stylesheet" href="static/css/font-awesome.min.css" />
+    <script src="https://www.google.com/jsapi"></script>
+    <script src="static/js/route.js"></script>
+    <script src="static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  </head>
+  <body>
+    <div class="columns full-page">
+      <div id="settings">
+        <div class="setting">
+          <label>Max Velocity (km/h)</label>
+          <input class="value" type="text" name="max_velocity" id="max_velocity" value="500" size="5">
+        </div>
+        <div class="setting">
+          <label>Accelleration (g)</label>
+          <input class="value" type="text" name="accelleration" id="accelleration" value="0.25" size="5">
+        </div>
+        <div class="setting">
+          <label>Max Cornering (g)</label>
+          <input class="value" type="text" name="cornering_accelleration" id="cornering_accelleration" value="0.5" size="5">
+        </div>
+        <div class="setting">
+          <label>
+            Throughput <i class="fa fa-question-circle" aria-hidden="true"></i>
+            <div class="tooltip">Number of containers per day</div>
+          </label>
+          <input class="value" type="text" name="throughput" id="throughput" value="100" size="5">
+        </div>
+        <div class="setting">
+          <label>Tube diameter (m)</label>
+          <input class="value" type="text" name="diameter" id="diameter" value="4.5" size="5">
+        </div>
+        <div class="setting">
+          <label>Loading time (mins)</label>
+          <input class="value" type="text" name="loadingtime" id="loadingtime" value="4" size="5">
+        </div>
+        <div class="setting">
+          <label>Pod weight (tons)</label>
+          <input class="value" type="text" name="podweight" id="podweight" value="20" size="5">
+        </div>
+        <div class="setting">
+          <label>Pod motor pwr (kW)</label>
+          <input class="value" type="text" name="max_power" id="max_power" value="3500" size="5">
+        </div>
+
+        <div class="update-button">
+          <input type="button" value="Update" onclick="updateRoute()">
+        </div>
+        <br>
+
+        <div class="setting">
+          <label>Track length (km)</label>
+          <input readonly class="value" type="text" name="length" id="length" value="1.000.000" size="5">
+        </div>
+        <div class="setting">
+          <label>CAPEX(€m)</label>
+          <input readonly class="value" type="text" name="capex" id="capex" value="1.000.000" size="5">
+        </div>
+        <div class="setting">
+          <label>Number of Pods</label>
+          <input readonly class="value" type="text" name="nrPods" id="nrPods" value="17" size="5">
+        </div>
+        <div class="setting">
+          <label>Travel time (sec)</label>
+          <input readonly class="value" type="text" name="traveltime" id="traveltime" value="15" size="5">
+        </div>
+        <br>
+        <div class="setting">
+          <label>Curve radius</label>
+          <input class="value" type="text" name="curveradius" id="curveradius" value="0" size="5">
+        </div>
+
+        <div class="update-button">
+          <input type="button" value="Set radius" onclick="setRadius()">
+        </div>
+
+        <div class="dropdown">
+          <button onclick="showMenu(1)" class="dropbtn">Chart 1</button>
+          <div id="dropdown_menu1" class="dropdown-content">
+            <a onclick="setChart(1, 'elevation')">Elevation</a>
+          </div>
+        </div>
+
+        <div class="dropdown">
+          <button onclick="showMenu(2)" class="dropbtn">Chart 2</button>
+          <div id="dropdown_menu2" class="dropdown-content">
+            <a onclick="setChart(2, 'speed')">Speed</a>
+            <a onclick="setChart(2, 'battery')">Battery</a>
+          </div>
+        </div>
+      </div>
+
+      <div id="mapcontainer">
+        <div class="button-group">
+          <a href="https://slack.com/oauth/authorize?scope=identity.basic,identity.email,identity.team,identity.avatar&client_id=137857628480.302386028709">
+            <img
+              alt="Sign in with Slack"
+              height="40"
+              width="172"
+              src="https://platform.slack-edge.com/img/sign_in_with_slack.png"
+              srcset="https://platform.slack-edge.com/img/sign_in_with_slack.png 1x, https://platform.slack-edge.com/img/sign_in_with_slack@2x.png 2x"
+            />
+          </a>
+          <div class="loop-toggle" onclick="toggleSettings()">
+            <i class="fa fa-cog" aria-hidden="true"></i>
+            SETTINGS
+          </div>
+
+          <div class="loop-toggle" onclick="toggleCharts('#SpeedChartDiv')">
+            <i class="fa fa-line-chart" aria-hidden="true"></i>
+            CHART
+          </div>
+
+          <div class="loop-toggle" onclick="clearRoute()">
+            <i aria-hidden="true"></i>
+            CLEAR ALL
+          </div>
+
+          <div class="loop-toggle" onclick="saveRoute()">
+            <i aria-hidden="true"></i>
+            SAVE ROUTE
+          </div>
+
+          <div class="loop-toggle" onclick="loadRoute()">
+            <i aria-hidden="true"></i>
+            LOAD ROUTE
+          </div>
+
+        </div>
+        <div id="map"></div>
+        <div id="charts" class="hidden">
+          <div id="ChartDiv1" class="chart"></div>
+          <div id="ChartDiv2" class="chart"></div>
+        </div>
+      </div>
+
+    </div>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyApIAsaS26KlgRRhBAeYlsTofi2Kbc1xvQ&callback=initialize">
+    </script>
+  </body>
+</html>
