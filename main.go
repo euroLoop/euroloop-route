@@ -1,16 +1,21 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	_ "github.com/lib/pq"
-	"github.com/rs/cors"
+	"html/template"
 	"io/ioutil"
 	"log"
 	"math"
 	"net/http"
 	"os"
+
+	_ "github.com/lib/pq"
+	"github.com/rs/cors"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/slack"
 )
 
 type Route struct {
@@ -72,9 +77,12 @@ func main() {
 
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("/", mainHandler)
 	mux.HandleFunc("/request", requestHandler)
 	mux.HandleFunc("/ping", pingHandler)
+	mux.HandleFunc("/login", loginHandler)
 	mux.HandleFunc("/saveroute", saveRoute)
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	handler := cors.Default().Handler(mux)
 
@@ -114,6 +122,17 @@ func loadRoutes(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func mainHandler(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles("static/index.html")
+	if err != nil {
+		log.Print("template parsing error: ", err)
+	}
+	err = t.Execute(w, "")
+	if err != nil {
+		log.Print("template executing error: ", err)
+	}
+}
+
 // Called when route is updated
 func requestHandler(w http.ResponseWriter, r *http.Request) {
 
@@ -132,6 +151,33 @@ func requestHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp, _ := json.Marshal(Response{nrPods, capex, 0, 0})
 	w.Write(resp)
+}
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+	userCode := r.URL.Query().Get("code")
+	ctx := context.Background()
+	conf := &oauth2.Config{
+		ClientID:     "137857628480.302386028709",
+		ClientSecret: os.Getenv("SLACK_TOKEN"),
+		Scopes:       []string{"identity.basic", "identity.team", "identity.avatar"},
+		Endpoint:     slack.Endpoint,
+	}
+
+	tok, err := conf.Exchange(ctx, userCode)
+	if err != nil {
+		fmt.Println("ERROR!!!")
+		log.Panic(err)
+	} else {
+		fmt.Println("Performed OAuth")
+		fmt.Println("Token:")
+		// fmt.Println(tok)
+		// fmt.Println(tok.AccessToken)
+		fmt.Println("Team:")
+		fmt.Println(tok.Extra("team_id"))
+		fmt.Println(tok.Extra("team"))
+		fmt.Println("End of login")
+	}
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func pingHandler(w http.ResponseWriter, r *http.Request) {
