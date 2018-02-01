@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -14,6 +13,7 @@ import (
 
 	_ "github.com/lib/pq"
 	"github.com/rs/cors"
+	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/slack"
 )
