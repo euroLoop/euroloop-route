@@ -20,7 +20,7 @@ import (
 
 type Route struct {
 	Name     string    `json:"name"`
-	Segments []segment `json:"coords"`
+	Segments []Segment `json:"coords"`
 }
 
 type RouteName struct {
@@ -32,10 +32,10 @@ type RouteNames struct {
 	routes []RouteName `json:"routes"`
 }
 
-type segment struct {
-	lat float64 `json:"lat"`
-	lng float64 `json:"lng"`
-	rad float64 `json:"rad"`
+type Segment struct {
+	Lat float64 `json:"lat"`
+	Lng float64 `json:"lng"`
+	Rad float64 `json:"rad"`
 }
 
 type RouteData struct {
@@ -88,6 +88,7 @@ func main() {
 	mux.HandleFunc("/ping", pingHandler)
 	mux.HandleFunc("/login", loginHandler)
 	mux.HandleFunc("/saveroute", saveRoute)
+	mux.HandleFunc("/loadroute", loadRoute)
 	mux.HandleFunc("/getroutenames", getRouteNames)
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
@@ -132,8 +133,27 @@ func saveRoute(w http.ResponseWriter, r *http.Request) {
 	checkErr(err)
 }
 
-func loadRoutes(w http.ResponseWriter, r *http.Request) {
+func loadRoute(w http.ResponseWriter, r *http.Request) {
 
+	var ret string
+	var request RouteName
+
+	body, _ := ioutil.ReadAll(r.Body)
+	fmt.Println(string(body))
+
+	_ = json.Unmarshal(body, &request)
+
+	rows, _ := db.Query("SELECT doc->'segments' FROM routes WHERE id = ($1)", request.id)
+	defer rows.Close()
+
+	for rows.Next() {
+
+		if err := rows.Scan(&ret); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(ret)
+	}
+	w.Write([]byte(ret))
 }
 
 func mainHandler(w http.ResponseWriter, r *http.Request) {
