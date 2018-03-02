@@ -71,7 +71,10 @@ func main() {
 
 	var err error
 
-	connStr := "postgres://qtkplvmtlnoxmo:e6be41ebe5299e829f9be8b59dbe437bb4599721662d40cda2e047117699321f@ec2-23-21-246-25.compute-1.amazonaws.com:5432/damrsuh0tjqpqi"
+	db_user := os.Getenv("DBUSER")
+	db_key := os.Getenv("DBKEY")
+
+	connStr := fmt.Sprintf("postgres://%s:%s@ec2-23-21-246-25.compute-1.amazonaws.com:5432/damrsuh0tjqpqi", db_user, db_key)
 
 	db, err = sql.Open("postgres", connStr)
 	checkErr(err)
