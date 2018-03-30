@@ -146,14 +146,14 @@ func loadRoute(w http.ResponseWriter, r *http.Request) {
 
 	_ = json.Unmarshal(body, &request)
 
-	rows, _ := db.Query("SELECT doc->'segments' FROM routes WHERE id = ($1)", request.id)
+	rows, err := db.Query("SELECT doc->'segments' FROM routes WHERE id = ($1)", request.id)
 	defer rows.Close()
+	checkErr(err)
 
 	for rows.Next() {
 
-		if err := rows.Scan(&ret); err != nil {
-			log.Fatal(err)
-		}
+		err := rows.Scan(&ret)
+		checkErr(err)
 		fmt.Println(ret)
 	}
 	w.Write([]byte(ret))
